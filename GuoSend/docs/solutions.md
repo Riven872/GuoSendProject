@@ -33,3 +33,8 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 }
 ```
 
+2、@AutoWired和@Resource的区别及使用
+
+原因：标准@AutoWired时，IDEA会警告不推荐使用
+
+解决方法：https://blog.csdn.net/youanyyou/article/details/126970723
