@@ -38,3 +38,31 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 原因：标准@AutoWired时，IDEA会警告不推荐使用
 
 解决方法：https://blog.csdn.net/youanyyou/article/details/126970723
+
+
+
+###### 前端：
+
+1、如果未登录则返回未登录结果，通过输出流方式向客户端页面响应数据
+
+后端：要在response响应中，将信息返回至客户端
+
+```java
+response.getWriter().write(JSON.toJSONString(R.error("NOTLOGIN")));
+```
+
+前端：前端自己的拦截器在收到服务器发来的响应时，如果msg中是"NOTLOGIN"，则将浏览器中的用户信息清除并跳转到登录页
+
+```js
+// 响应拦截器
+service.interceptors.response.use(res => {
+    if (res.data.code === 0 && res.data.msg === 'NOTLOGIN') {// 返回登录页面
+        console.log('---/backend/page/login/login.html---')
+        localStorage.removeItem('userInfo')
+        window.top.location.href = '/backend/page/login/login.html'
+    } else {
+        return res.data
+    }
+},
+```
+

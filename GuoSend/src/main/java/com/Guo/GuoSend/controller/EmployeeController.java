@@ -56,7 +56,19 @@ public class EmployeeController {
         }
 
         //6、登录成功，将员工id存入Session并返回登录成功结果
-        httpServletRequest.getSession().setAttribute("employee", employee.getId());
+        httpServletRequest.getSession().setAttribute("employee", emp.getId());
         return R.success(emp);
+    }
+
+    /**
+     * 员工退出
+     * @param httpServletRequest
+     * @return
+     */
+    @PostMapping("/logout")
+    public R<String> logout(HttpServletRequest httpServletRequest){
+        //清理Session中保存的当前登录员工的id
+        httpServletRequest.getSession().removeAttribute("employee");
+        return R.success("退出成功");
     }
 }
