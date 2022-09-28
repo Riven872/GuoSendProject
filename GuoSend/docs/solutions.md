@@ -39,6 +39,12 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 
 解决方法：https://blog.csdn.net/youanyyou/article/details/126970723
 
+3、登录时反复跳转到登录页面
+
+原因：用户信息没有正确的放到session，在过滤器过滤请求时，发现session中没有用户id而跳转回登录页，是因为最开始往session中传id时，用的请求参数（`@RequestBody Employee employee`），但请求参数中是没有id的，因此id为null
+
+解决方法：因此需要将数据库查出来employee对应的id放入session中
+
 
 
 ###### 前端：

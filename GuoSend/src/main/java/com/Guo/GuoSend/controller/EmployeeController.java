@@ -14,6 +14,8 @@ import sun.misc.Request;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -62,13 +64,41 @@ public class EmployeeController {
 
     /**
      * 员工退出
+     *
      * @param httpServletRequest
      * @return
      */
     @PostMapping("/logout")
-    public R<String> logout(HttpServletRequest httpServletRequest){
+    public R<String> logout(HttpServletRequest httpServletRequest) {
         //清理Session中保存的当前登录员工的id
         httpServletRequest.getSession().removeAttribute("employee");
         return R.success("退出成功");
+    }
+
+    /**
+     * 新增员工
+     *
+     * @param employee
+     * @return
+     */
+    @PostMapping
+    public R<String> save(HttpServletRequest request, @RequestBody Employee employee) {
+        log.info("新增员工，信息为{}", employee);
+
+        //设置初始密码为123，且用MD5进行加密处理
+        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+        //设置初始创建时间
+        employee.setCreateTime(LocalDateTime.now());
+        //设置初始更新时间
+        employee.setUpdateTime(LocalDateTime.now());
+        //从session中获取当前登录用户的id
+        long empId = (Long) request.getSession().getAttribute("employee");
+        //设置初始创建人
+        employee.setCreateUser(empId);
+        //设置最新修改人
+        employee.setUpdateUser(empId);
+
+        employeeService.save(employee);
+        return R.success("新增员工成功");
     }
 }
