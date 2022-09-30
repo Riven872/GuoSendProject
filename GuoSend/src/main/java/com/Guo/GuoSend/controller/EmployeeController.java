@@ -4,12 +4,12 @@ import com.Guo.GuoSend.common.R;
 import com.Guo.GuoSend.entity.Employee;
 import com.Guo.GuoSend.service.EmployeeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sun.misc.Request;
 
 import javax.annotation.Resource;
@@ -100,5 +100,30 @@ public class EmployeeController {
 
         employeeService.save(employee);
         return R.success("新增员工成功");
+    }
+
+    /**
+     * 分页查询员工数据
+     *
+     * @param page     当前页码
+     * @param pageSize 每页的数据量
+     * @param name     通过名字快速搜索
+     * @return
+     */
+    @GetMapping("/page")
+    public R<Page> page(int page, int pageSize, String name) {
+        //构造分页构造器
+        Page pageInfo = new Page(page, pageSize);
+
+        //构造条件（快速搜索）构造器
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper();
+        //添加过滤条件，当name字段不为空时才会添加like条件
+        queryWrapper.like(StringUtils.isNotEmpty(name), Employee::getName, name);
+        //添加排序条件
+        queryWrapper.orderByDesc(Employee::getUpdateTime);
+        //执行查询
+        employeeService.page(pageInfo, queryWrapper);
+        //执行成功
+        return R.success(pageInfo);
     }
 }
