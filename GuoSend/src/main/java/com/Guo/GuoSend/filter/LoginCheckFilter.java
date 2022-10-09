@@ -1,5 +1,6 @@
 package com.Guo.GuoSend.filter;
 
+import com.Guo.GuoSend.common.BaseContext;
 import com.Guo.GuoSend.common.R;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,9 @@ public class LoginCheckFilter implements Filter {
         //4、判断登录状态，如果已登录，则直接放行
         if (request.getSession().getAttribute("employee") != null) {
             log.info("用户已登录，id为{}", request.getSession().getAttribute("employee"));
+
+            Long empId = (Long) request.getSession().getAttribute("employee");//取得当前登录用户的id
+            BaseContext.setCurrentId(empId);//将当前登录用户的id放入ThreadLocal中
             filterChain.doFilter(request, response);
             return;
         }

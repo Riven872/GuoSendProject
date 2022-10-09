@@ -51,4 +51,38 @@
 
 ##### 二、分类管理模块
 
-1、
+###### 1、公共字段自动填充
+
+- 几乎所有的实体都有创建时间、创建人、更新时间、更新人这四个字段，在每次业务中赋值时会显得很弱智
+
+- MP提供了自动填充功能，新建一个类实现`MetaObjectHandler`接口中并重写`insertFill`和`updateFill`方法，在方法中添加赋值逻辑
+
+    - 在实体字段中，使用注解`@TableField`来标注在什么时候进行填充
+
+        ```java
+        @TableField(fill = FieldFill.INSERT)//插入时填充字段
+        private LocalDateTime createTime;
+        
+        @TableField(fill = FieldFill.INSERT_UPDATE)//插入和更新时填充字段
+        private LocalDateTime updateTime;
+        
+        @TableField(fill = FieldFill.INSERT)//插入时填充字段
+        private Long createUser;
+        
+        @TableField(fill = FieldFill.INSERT_UPDATE)//插入和更新时填充字段
+        private Long updateUser;
+        ```
+
+    - 其中`insertFill`会在执行插入操作时，进行自动填充，`updateFill`当发生更新操作时，自动填充
+
+        ```java
+    @Override
+    public void insertFill(MetaObject metaObject) {
+        metaObject.setValue("字段名", 需要填充的值);
+    }
+
+###### 2、在`MetaObjectHandle`r中获取当前登录人的id
+
+- `MetaObjectHandler`无法获取到`httpservletrequest`，也无法拿到session中的值，因此无法获取到id
+- 客户端发送的每次`http`请求，对应的在服务端都会分配一个新的线程来处理，因此可以将id放到`ThreadLocal`中，作为局部变量来使用
+- 编写`BaseContext`工具类，持有`ThreadLocal<Long>`类型的成员变量，并基于`ThreadLocal`编写set和get方法

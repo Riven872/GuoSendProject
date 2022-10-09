@@ -83,16 +83,16 @@ public class EmployeeController {
 
         //设置初始密码为123，且用MD5进行加密处理
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-        //设置初始创建时间
-        employee.setCreateTime(LocalDateTime.now());
-        //设置初始更新时间
-        employee.setUpdateTime(LocalDateTime.now());
+        ////设置初始创建时间
+        //employee.setCreateTime(LocalDateTime.now());
+        ////设置初始更新时间
+        //employee.setUpdateTime(LocalDateTime.now());
         //从session中获取当前登录用户的id
-        long empId = (Long) request.getSession().getAttribute("employee");
-        //设置初始创建人
-        employee.setCreateUser(empId);
-        //设置最新修改人
-        employee.setUpdateUser(empId);
+        //long empId = (Long) request.getSession().getAttribute("employee");
+        ////设置初始创建人
+        //employee.setCreateUser(empId);
+        ////设置最新修改人
+        //employee.setUpdateUser(empId);
 
         employeeService.save(employee);
         return R.success("新增员工成功");
@@ -133,9 +133,9 @@ public class EmployeeController {
      */
     @PutMapping
     public R<String> update(HttpServletRequest httpServletRequest, @RequestBody Employee employee) {
-        long empId = (long) httpServletRequest.getSession().getAttribute("employee");//获取当前登录人的id
-        employee.setUpdateUser(empId);//设置更新人为当前登录人
-        employee.setUpdateTime(LocalDateTime.now());//设置修改时间为当前时间
+        //long empId = (long) httpServletRequest.getSession().getAttribute("employee");//获取当前登录人的id
+        //employee.setUpdateUser(empId);//设置更新人为当前登录人
+        //employee.setUpdateTime(LocalDateTime.now());//设置修改时间为当前时间
         employeeService.updateById(employee);//调用employeeService的update方法
 
         return R.success("员工信息修改成功");
