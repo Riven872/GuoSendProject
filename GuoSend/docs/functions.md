@@ -1,4 +1,6 @@
-##### 功能点
+#### 功能点
+
+##### 一、员工管理模块
 
 ###### 1、用户登录
 
@@ -24,3 +26,29 @@
 - 新增用户时，用户名在数据库中是Unique类型，如果新增时重复输入了一个用户名，在数据库层面会抛出异常至后端
 - 使用`@ControllerAdvice(annotations = {RestController.class, Controller.class})`和`@ExceptionHandler(SQLIntegrityConstraintViolationException.class)`注解去扫描标注了`annotations` 中的class，且在该类中抛出异常的类
 - 当发生扫描时，进行异常信息的拦截，并通过`ex.getMessage()`进行判别，细化对异常的处理
+
+###### 6、员工信息分页查询
+
+- 使用MP的page分页插件，在MybatisPlusConfig中配置分页插件（即MP的拦截器`mybatisPlusInterceptor`）
+- 新增Page对象并添加Wrapper条件即可
+
+###### 7、禁用员工账号（修改员工信息）
+
+- 前端发送请求，将整个Employee对象传到后端
+- 后端使用Service对数据库进行UpdateById操作
+
+###### 8、扩展MVC的框架消息转换器
+
+- 使用`JacksonObjectMapper`类
+- 并在MVCConfig中扩展消息转换器
+
+###### 9、编辑员工信息
+
+- 先回写要修改员工的信息
+- 复用`禁用员工账号`的方法，即修改员工信息的方法提交数据即可
+
+
+
+##### 二、分类管理模块
+
+1、

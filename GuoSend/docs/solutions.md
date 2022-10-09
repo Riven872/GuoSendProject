@@ -72,3 +72,27 @@ service.interceptors.response.use(res => {
 },
 ```
 
+2、修改用户账号状态不生效
+
+原因：用雪花算法生成的id是19位的long型，但是前端js在处理时只能处理到16位，因此在分页查询出员工信息时，该员工的id只有16位，丢失了精度，因此再使用此行的员工id时，也只有16位，不足的0补全，造成id的不一致
+
+解决方法：服务端给页面响应Json数据时，将Long型数据统一转为string字符串进行处理，在WebMVC中，扩展MVC框架的消息转换器，使用Jackson进行序列化和反序列化
+
+```java
+/**
+* 扩展MVC框架的消息转换器
+* @param converters
+*/
+@Override
+protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+    //创建消息转换器对象
+    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+    //设置对象转换器，底层使用Jackson将Java对象转换成Json
+    converter.setObjectMapper(new JacksonObjectMapper());
+    //将上面的消息转换器对象追加到mvc框架的转换器集合中
+    converters.add(0, converter);
+}
+```
+
+
+

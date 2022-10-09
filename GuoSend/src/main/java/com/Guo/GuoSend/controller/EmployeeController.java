@@ -4,18 +4,14 @@ import com.Guo.GuoSend.common.R;
 import com.Guo.GuoSend.entity.Employee;
 import com.Guo.GuoSend.service.EmployeeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
-import sun.misc.Request;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import javax.servlet.http.HttpServletRequest;import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -121,9 +117,41 @@ public class EmployeeController {
         queryWrapper.like(StringUtils.isNotEmpty(name), Employee::getName, name);
         //添加排序条件
         queryWrapper.orderByDesc(Employee::getUpdateTime);
+        //用来屏蔽超管账号，通过匹配Username即账号名去实现
+        queryWrapper.ne(Employee::getUsername, "admin");
         //执行查询
         employeeService.page(pageInfo, queryWrapper);
         //执行成功
         return R.success(pageInfo);
+    }
+
+    /**
+     * 根据id修改员工信息
+     *
+     * @param employee
+     * @return
+     */
+    @PutMapping
+    public R<String> update(HttpServletRequest httpServletRequest, @RequestBody Employee employee) {
+        long empId = (long) httpServletRequest.getSession().getAttribute("employee");//获取当前登录人的id
+        employee.setUpdateUser(empId);//设置更新人为当前登录人
+        employee.setUpdateTime(LocalDateTime.now());//设置修改时间为当前时间
+        employeeService.updateById(employee);//调用employeeService的update方法
+
+        return R.success("员工信息修改成功");
+    }
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable long id){
+        Employee employee = employeeService.getById(id);
+        if (employee != null) {
+            return R.success(employee);
+        }
+        return R.error("没有查询到对应的员工信息");
     }
 }
