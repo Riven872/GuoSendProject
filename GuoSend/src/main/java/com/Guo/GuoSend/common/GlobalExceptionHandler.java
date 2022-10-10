@@ -36,4 +36,14 @@ public class GlobalExceptionHandler {
         //其他错误暂时无法确切定位，因此先临时处理
         return R.error("未知错误");
     }
+
+    /**
+     * 处理自定义异常类
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(CustomException.class)
+    public R<String> exceptionHandler(CustomException ex) {
+        return R.error(ex.getMessage());
+    }
 }
