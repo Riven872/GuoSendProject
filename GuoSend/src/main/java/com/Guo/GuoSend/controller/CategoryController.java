@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 @RequestMapping("/category")
@@ -62,6 +63,7 @@ public class CategoryController {
 
     /**
      * 根据id修改分类信息
+     *
      * @param category
      * @return
      */
@@ -69,5 +71,22 @@ public class CategoryController {
     public R<String> update(@RequestBody Category category) {
         categoryService.updateById(category);
         return R.success("修改成功");
+    }
+
+    /**
+     * 根据条件查询分类数据（套餐分类或菜品分类）
+     * @param category
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Category>> list( Category category) {
+        //条件构造器
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(category.getType() != null, Category::getType, category.getType())
+        .orderByAsc(Category::getSort)
+        .orderByDesc(Category::getUpdateTime);
+
+        List<Category> list = categoryService.list(queryWrapper);
+        return R.success(list);
     }
 }
