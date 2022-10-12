@@ -26,9 +26,6 @@ public class DishController {
     private DishService dishService;
 
     @Resource
-    private DishFlavorService dishFlavorService;
-
-    @Resource
     private CategoryService categoryService;
 
     /**
@@ -78,5 +75,83 @@ public class DishController {
 
         dtoPage.setRecords(list);
         return R.success(dtoPage);
+    }
+
+    /**
+     * 修改菜品
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<DishDto> get(@PathVariable Long id) {
+        DishDto dishDto = dishService.getByIdWithFlavor(id);
+        return R.success(dishDto);
+    }
+
+    /**
+     * 修改菜品
+     *
+     * @param dishDto
+     * @return
+     */
+    @PutMapping
+    public R<String> update(@RequestBody DishDto dishDto) {
+        dishService.updateWithFlavor(dishDto);
+
+        return R.success("修改成功");
+    }
+
+    /**
+     * 启售、停售菜品（单个或批量）
+     *
+     * @param ids 菜品id
+     * @param arg 将要改变的状态
+     * @return
+     */
+    @PostMapping("/status/{arg}")
+    public R<String> updateStatus(@RequestParam("ids") List<Long> ids, @PathVariable Integer arg) {
+        List<Dish> list = new ArrayList<>();
+        ids.forEach(e -> {
+            Dish dish = new Dish();
+            dish.setId(e);
+            dish.setStatus(arg);
+            list.add(dish);
+        });
+        dishService.updateBatchById(list);
+
+        return R.success("状态修改成功");
+    }
+
+    /**
+     * 根据id删除菜品（单个或批量）
+     *
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    public R<String> delete(@RequestParam("ids") List<Long> ids) {
+        dishService.removeByIds(ids);
+        return R.success("删除成功");
+    }
+
+    /**
+     * 根据条件查询对应的菜品数据
+     *
+     * @param dish
+     * @param name 快速搜素
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Dish>> list(Dish dish, String name) {
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
+                .eq(Dish::getStatus, 1)
+                .like(name != null, Dish::getName, name)
+                .orderByAsc(Dish::getSort)
+                .orderByDesc(Dish::getUpdateTime);
+        List<Dish> list = dishService.list(queryWrapper);
+
+        return R.success(list);
     }
 }
