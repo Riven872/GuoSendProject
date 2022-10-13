@@ -1,0 +1,7 @@
+package com.Guo.GuoSend.controller;
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+}

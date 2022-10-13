@@ -35,7 +35,9 @@ public class LoginCheckFilter implements Filter {
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
-                "/front/**"
+                "/front/**",
+                "/user/sendMsg",//移动端发送短信
+                "/user/login"//移动端登录
         };
 
         //2、判断本次请求是否需要检查登录

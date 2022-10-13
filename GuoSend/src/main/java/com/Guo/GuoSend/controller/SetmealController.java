@@ -3,6 +3,7 @@ package com.Guo.GuoSend.controller;
 import com.Guo.GuoSend.common.R;
 import com.Guo.GuoSend.dto.SetmealDto;
 import com.Guo.GuoSend.entity.Setmeal;
+import com.Guo.GuoSend.entity.SetmealDish;
 import com.Guo.GuoSend.service.CategoryService;
 import com.Guo.GuoSend.service.SetmealDishService;
 import com.Guo.GuoSend.service.SetmealService;
@@ -71,5 +72,61 @@ public class SetmealController {
         });
         dtoPage.setRecords(list);
         return R.success(dtoPage);
+    }
+
+    /**
+     * 删除套餐
+     *
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    public R<String> delete(@RequestParam List<Long> ids) {
+        setmealService.removeWithDish(ids);
+        return R.success("删除成功");
+    }
+
+    /**
+     * 修改售卖状态（单个和批量）
+     *
+     * @param ids
+     * @param arg
+     * @return
+     */
+    @PostMapping("/status/{arg}")
+    public R<String> updateStatus(@RequestParam List<Long> ids, @PathVariable Integer arg) {
+        List<Setmeal> dishes = new ArrayList<>();
+        ids.forEach(e -> {
+            Setmeal dish = new Setmeal();
+            dish.setId(e);
+            dish.setStatus(arg);
+            dishes.add(dish);
+        });
+        setmealService.updateBatchById(dishes);
+
+        return R.success("修改状态成功！");
+    }
+
+    /**
+     * 获取套餐及其菜品信息
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<SetmealDto> get(@PathVariable Long id) {
+        return R.success(setmealService.getWithDish(id));
+    }
+
+    /**
+     * 修改套餐及其菜品信息
+     *
+     * @param setmealDto
+     * @return
+     */
+    @PutMapping
+    public R<String> update(@RequestBody SetmealDto setmealDto) {
+        setmealService.updateWithDish(setmealDto);
+        return R.success("修改成功");
     }
 }
