@@ -50,7 +50,8 @@ public class LoginCheckFilter implements Filter {
             return;
         }
 
-        //4、判断登录状态，如果已登录，则直接放行
+
+        //region 4-1、判断员工登录状态，如果已登录，则直接放行
         if (request.getSession().getAttribute("employee") != null) {
             log.info("用户已登录，id为{}", request.getSession().getAttribute("employee"));
 
@@ -59,6 +60,18 @@ public class LoginCheckFilter implements Filter {
             filterChain.doFilter(request, response);
             return;
         }
+        //endregion
+
+        //region 4-2、判断移动端用户登录状态，如果已登录，则直接放行
+        if (request.getSession().getAttribute("user") != null) {
+            log.info("用户已登录，id为{}", request.getSession().getAttribute("user"));
+
+            Long userId = (Long) request.getSession().getAttribute("user");//取得当前登录用户的id
+            BaseContext.setCurrentId(userId);//将当前登录用户的id放入ThreadLocal中
+            filterChain.doFilter(request, response);
+            return;
+        }
+        //endregion
 
         log.info("用户未登录");
         //5、如果未登录则返回未登录结果，通过输出流方式向客户端页面响应数据
