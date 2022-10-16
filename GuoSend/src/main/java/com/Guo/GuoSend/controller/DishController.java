@@ -4,6 +4,7 @@ import com.Guo.GuoSend.common.R;
 import com.Guo.GuoSend.dto.DishDto;
 import com.Guo.GuoSend.entity.Category;
 import com.Guo.GuoSend.entity.Dish;
+import com.Guo.GuoSend.entity.DishFlavor;
 import com.Guo.GuoSend.service.CategoryService;
 import com.Guo.GuoSend.service.DishFlavorService;
 import com.Guo.GuoSend.service.DishService;
@@ -27,6 +28,9 @@ public class DishController {
 
     @Resource
     private CategoryService categoryService;
+
+    @Resource
+    private DishFlavorService dishFlavorService;
 
     /**
      * 新增菜品
@@ -143,7 +147,7 @@ public class DishController {
      * @return
      */
     @GetMapping("/list")
-    public R<List<Dish>> list(Dish dish, String name) {
+    public R<List<DishDto>> list(Dish dish, String name) {
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId() != null, Dish::getCategoryId, dish.getCategoryId())
                 .eq(Dish::getStatus, 1)
@@ -152,6 +156,19 @@ public class DishController {
                 .orderByDesc(Dish::getUpdateTime);
         List<Dish> list = dishService.list(queryWrapper);
 
-        return R.success(list);
+
+        List<DishDto> dtoList = new ArrayList<>();
+        list.forEach(e -> {
+            //region 查询每个菜品对应的口味集合
+            DishDto dto = new DishDto();
+            BeanUtils.copyProperties(e, dto);
+            LambdaQueryWrapper<DishFlavor> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(DishFlavor::getDishId, e.getId());
+            dto.setFlavors(dishFlavorService.list(wrapper));
+            dtoList.add(dto);
+            //endregion
+        });
+
+        return R.success(dtoList);
     }
 }

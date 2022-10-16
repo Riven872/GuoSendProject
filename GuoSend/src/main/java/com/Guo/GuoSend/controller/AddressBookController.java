@@ -84,7 +84,7 @@ public class AddressBookController {
     /**
      * 查询指定用户的全部地址
      */
-    @GetMapping("/list")
+    @GetMapping("/list1")
     public R<List<AddressBook>> list(AddressBook addressBook) {
         addressBook.setUserId(BaseContext.getId());
 
@@ -95,5 +95,29 @@ public class AddressBookController {
 
         //SQL:select * from address_book where user_id = ? order by update_time desc
         return R.success(addressBookService.list(queryWrapper));
+    }
+
+    /**
+     * 修改地址
+     *
+     * @param addressBook
+     * @return
+     */
+    @PutMapping
+    public R<String> update(@RequestBody AddressBook addressBook) {
+        addressBookService.updateById(addressBook);
+        return R.success("修改成功");
+    }
+
+    /**
+     * 删除地址
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping
+    public R<String> delete(@RequestParam("ids") Long id) {
+        addressBookService.removeById(id);
+        return R.success("删除成功");
     }
 }

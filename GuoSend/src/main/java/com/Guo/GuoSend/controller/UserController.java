@@ -6,6 +6,7 @@ import com.Guo.GuoSend.service.UserService;
 import com.Guo.GuoSend.utils.SMSUtils;
 import com.Guo.GuoSend.utils.ValidateCodeUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -44,6 +46,7 @@ public class UserController {
 
             //需要将生成的验证码保存到session中，以备之后的校验
             session.setAttribute(phone, code);
+            log.info("验证码为: " + code);
 
             return R.success("手机验证码发送成功！");
         }
