@@ -84,7 +84,7 @@ public class AddressBookController {
     /**
      * 查询指定用户的全部地址
      */
-    @GetMapping("/list1")
+    @GetMapping("/list")
     public R<List<AddressBook>> list(AddressBook addressBook) {
         addressBook.setUserId(BaseContext.getId());
 

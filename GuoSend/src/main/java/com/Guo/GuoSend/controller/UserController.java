@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
 
@@ -91,5 +92,16 @@ public class UserController {
         //endregion
 
         return R.error("登录失败！");
+    }
+
+    /**
+     * 手机端退出登录
+     * @param httpServletRequest
+     * @return
+     */
+    @PostMapping("/loginout")
+    public R<String> loginout(HttpServletRequest httpServletRequest){
+        httpServletRequest.getSession().removeAttribute("user");
+        return R.success("退出成功");
     }
 }

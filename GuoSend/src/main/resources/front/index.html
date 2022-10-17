@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no,minimal-ui">
-    <title>菩提阁</title>
+    <title>哆哆鸡外卖</title>
     <link rel="icon" href="images/favico.ico">
     <!--不同屏幕尺寸根字体设置-->
     <script src="./js/base.js"></script>
@@ -27,7 +27,7 @@
         <div class="divStatic">
           <img src="./images/logo.png"  class="logo"/>
           <div class="divDesc">
-            <div class="divName">菩提阁餐厅</div>
+            <div class="divName">哆哆鸡外卖</div>
             <div class="divSend">
                 <span><img src="./images/time.png"/> 距离1.5km</span>
                 <span><img src="./images/money.png"/> 配送费6元</span>
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="divDesc">
-          简介: 菩提阁中餐厅是菩提阁点餐的独立的品牌，定位“大众 化的美食外送餐饮”，旨为顾客打造专业美食。
+          【品牌加盟热线：8888888】哆哆鸡外卖，本店精选大西北良种鸡，一鸡一炸，酥脆可口，汁水充盈，旨在保证每一只鸡的口感和口味！另有十种调味可选，酸甜咸辣，应有竟有，帝王般的炸鸡享受，你值得拥有！
         </div>
       </div>
       <div class="divBody">
@@ -47,7 +47,8 @@
         </div>
         <div class="divMenu">
           <div>
-            <div class="divItem" v-for="(item,index) in dishList" :key="index" @click="dishDetails(item)">
+            <!-- riven备注：点击图片的请求没搞好 莫名其妙的 @click="dishDetails(item)" -->
+            <div class="divItem" v-for="(item,index) in dishList" :key="index">
               <el-image :src="imgPathConvert(item.image)" >
                 <div slot="error" class="image-slot">
                   <img src="./images/noImg.png"/>

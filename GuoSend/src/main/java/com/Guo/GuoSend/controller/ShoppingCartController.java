@@ -4,10 +4,13 @@ import com.Guo.GuoSend.common.BaseContext;
 import com.Guo.GuoSend.common.R;
 import com.Guo.GuoSend.entity.ShoppingCart;
 import com.Guo.GuoSend.service.ShoppingCartService;
+import com.alibaba.druid.sql.visitor.functions.If;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/shoppingCart")
@@ -42,6 +45,7 @@ public class ShoppingCartController {
             shoppingCartService.updateById(cart);
         } else {
             shoppingCart.setNumber(1);
+            shoppingCart.setCreateTime(LocalDateTime.now());
             shoppingCartService.save(shoppingCart);
             cart = shoppingCart;
         }
@@ -50,8 +54,59 @@ public class ShoppingCartController {
         return R.success(cart);
     }
 
+    /**
+     * 查看购物车
+     *
+     * @return
+     */
     @GetMapping("/list")
-    public R<String> foo() {
-        return null;
+    public R<List<ShoppingCart>> list() {
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getId())
+                .orderByDesc(ShoppingCart::getCreateTime);
+        List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
+        return R.success(list);
+    }
+
+    /**
+     * 清空购物车
+     *
+     * @return
+     */
+    @DeleteMapping("/clean")
+    public R<String> delete() {
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getId());
+        shoppingCartService.remove(queryWrapper);
+        return R.success("清空购物车成功");
+    }
+
+    /**
+     * 减少购物车中指定的物品
+     *
+     * @param cart
+     * @return
+     */
+    @PostMapping("/sub")
+    public R<ShoppingCart> sub(@RequestBody ShoppingCart cart) {
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, BaseContext.getId())
+                .and(e -> e.eq(cart.getDishId() != null, ShoppingCart::getDishId, cart.getDishId())
+                        .or()
+                        .eq(cart.getSetmealId() != null, ShoppingCart::getSetmealId, cart.getSetmealId()));
+        ShoppingCart shoppingCart = shoppingCartService.getOne(queryWrapper);
+        if (shoppingCart != null) {
+            //数量减一
+            shoppingCart.setNumber(shoppingCart.getNumber() - 1);
+            shoppingCartService.updateById(shoppingCart);
+            //如果数量减去后是0，则删除该数据
+            if (shoppingCart.getNumber() <= 0) {
+                shoppingCartService.removeById(shoppingCart.getId());
+                return R.success(new ShoppingCart());
+            }
+        }
+
+
+        return R.success(shoppingCart);
     }
 }
