@@ -8,6 +8,7 @@ import com.Guo.GuoSend.utils.ValidateCodeUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -24,6 +26,9 @@ import java.util.Map;
 public class UserController {
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     /**
      * 发送手机短信验证码
@@ -45,9 +50,13 @@ public class UserController {
             //调用腾讯云提供的短信服务API完成发送短信
             //SMSUtils.sendMessage("郭郭鸡的小窝公众号", "1572763", phone, code);
 
-            //需要将生成的验证码保存到session中，以备之后的校验
-            session.setAttribute(phone, code);
+            //region 需要将生成的验证码保存到session中，以备之后的校验，注释，已优化为Redis
+            //session.setAttribute(phone, code);
+            //endregion
             log.info("验证码为: " + code);
+
+            //将生成的验证码缓存到Redis中，并且设置有效期为5分钟
+            redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
 
             return R.success("手机验证码发送成功！");
         }
@@ -68,8 +77,13 @@ public class UserController {
         String phone = map.get("phone").toString();
         //获取验证码
         String code = map.get("code").toString();
-        //session中的验证码
-        String codeInSession = session.getAttribute(phone).toString();
+
+        //region session中的验证码，注释，优化为Redis
+        //String codeInSession = session.getAttribute(phone).toString();
+        //endregion
+
+        //从Redis中获取缓存的验证码
+        Object codeInSession = redisTemplate.opsForValue().get(phone);
 
         //region 登录成功
         //页面提交的验证码和Session中发送的验证码进行比对
@@ -87,6 +101,9 @@ public class UserController {
                 userService.save(user);
             }
             session.setAttribute("user", user.getId());
+            //如果登录成功，删除Redis中缓存的验证码
+            redisTemplate.delete(phone);
+
             return R.success(user);
         }
         //endregion
@@ -96,11 +113,12 @@ public class UserController {
 
     /**
      * 手机端退出登录
+     *
      * @param httpServletRequest
      * @return
      */
     @PostMapping("/loginout")
-    public R<String> loginout(HttpServletRequest httpServletRequest){
+    public R<String> loginout(HttpServletRequest httpServletRequest) {
         httpServletRequest.getSession().removeAttribute("user");
         return R.success("退出成功");
     }
